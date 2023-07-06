@@ -1,11 +1,12 @@
+-- Explore CovidDeaths and CovidVaccinations data
 
 Select * From PortfolioProjects..CovidDeaths
 Where continent is not null
 Order by 3,4
 
-/*--select * from PortfolioProjects..CovidVaccinations
---Where continent is not null
---order by 3,4*/
+Select * From PortfolioProjects..CovidVaccinations
+Where continent is not null
+Order by 3,4
 
 -- Select data that we are going to be using
 
@@ -20,9 +21,11 @@ Order by 1,2
 Select Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
 From PortfolioProjects..CovidDeaths
 Where continent is not null AND Location = 'Thailand'
-order by 1,2
+Order by 1,2
 
 -- Change datatype from char to float
+-- This will change in the database not temporary change
+	
 Alter table CovidDeaths alter column total_deaths float
 Alter table CovidDeaths alter column total_cases float
 
@@ -53,14 +56,6 @@ Where continent is not null
 Group by Location
 Order by TotalDeathsCount desc
 
-Select Location, MAX(total_deaths) AS TotalDeathsCount
-From PortfolioProjects..CovidDeaths
-Where continent is not null
--- Where Location = 'Thailand'
-Group by Location
-Order by TotalDeathsCount desc
-
-
 -- LET'S BREAK THINGS DOWN BY CONTINENT
 
 Select continent, MAX(total_deaths) AS TotalDeathsCount
@@ -81,7 +76,7 @@ Group by continent
 Order by TotalDeathsCount desc
 
 
--- GLOBAL NUMBERS > Looking at all the countries and number
+-- GLOBAL NUMBERS Looking at all the countries
 
 Select SUM(new_cases) AS total_new_cases, SUM(new_deaths) AS total_new_deaths, SUM(new_deaths)/SUM(new_cases)*100 AS DeathsPercentage
 From PortfolioProjects..CovidDeaths
@@ -104,7 +99,7 @@ Where dea.continent is not null
 Order by 2,3
 
 
--- USE CTE
+-- Use CTE
 
 With PopvsVac (continent, location, date, population, new_vaccinations, RollingPeopleVaccinations)
 AS
@@ -124,7 +119,7 @@ Select *, (RollingPeopleVaccinations/population)*100
 From PopvsVac
 
 
--- TEMP TABLE
+-- Create Temporary Table
 
 DROP Table if exists #PercentagePopulationVaccinate
 CREATE Table #PercentagePopulationVaccinate
@@ -152,9 +147,7 @@ Join PortfolioProjects..CovidVaccinations vac
 Select *, (RollingPeopleVaccinations/population)*100
 From #PercentagePopulationVaccinate
 
-
-
--- Creating view to store data for later dataviz
+-- Creating view to store data for later datavisualization
 
 CREATE VIEW PercentagePopulationVaccinate AS
 Select dea.continent, dea.location,dea.date, dea.population, vac.new_vaccinations
@@ -167,7 +160,6 @@ Join PortfolioProjects..CovidVaccinations vac
 	AND dea.date = vac.date
 Where dea.continent is not null
 --Order by 2,3
-
 
 Select *
 From PercentagePopulationVaccinate
